@@ -147,6 +147,19 @@ export default function App() {
                 <div>
                   <span className="inline-block w-6 h-6 bg-purple-100 text-purple-700 text-center font-semibold rounded-full leading-6 mr-2">3</span>
                   Complete "Step 4. Set up Instagram business login" in the Meta dashboard.
+                  <div className="bg-gray-50 p-3 mt-2 rounded-lg border border-gray-200 break-all text-xs">
+                    <div className="flex justify-between items-center mb-2">
+                      <strong className="block text-gray-800">Your Redirect URL for Login:</strong>
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(webhookUrl.replace('/api/webhook', '') + '/')}
+                        className="p-1.5 bg-white border border-gray-200 rounded-md hover:bg-gray-50 flex items-center gap-1"
+                        title="Copy Redirect URL"
+                      >
+                        <span>Copy</span>
+                      </button>
+                    </div>
+                    <span className="text-purple-600 block">{webhookUrl ? webhookUrl.replace('/api/webhook', '') + '/' : 'Loading...'}</span>
+                  </div>
                 </div>
               </div>
             </section>
