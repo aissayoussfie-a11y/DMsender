@@ -1,10 +1,11 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import cors from "cors";
+import path from "path";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   app.use(cors());
   app.use(express.json());
@@ -97,7 +98,6 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const path = require('path');
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
