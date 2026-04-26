@@ -205,6 +205,17 @@ export default function App() {
                     </div>
                     <span className="text-purple-600 block">{webhookUrl ? webhookUrl.replace('/api/webhook', '') + '/' : 'Loading...'}</span>
                   </div>
+                  <div className="bg-amber-50 text-amber-800 p-3 mt-2 rounded-lg border border-amber-200 text-xs">
+                    <strong>Note about Login Popups & "Insufficient Developer Role" error:</strong> 
+                    <ul className="list-disc pl-4 mt-2 space-y-1">
+                      <li>If the popup is blank/black, try disabling adblockers or use an Incognito window.</li>
+                      <li>If you get <strong>"Insufficient Developer Role"</strong> or a similar error, your Instagram account needs to be added as a tester.</li>
+                      <li>Go to <strong>App Roles {'>'} Roles</strong> in the sidebar, click <strong>Add People</strong> and select <strong>Instagram Tester</strong>. Enter your IG username.</li>
+                      <li><strong>CRITICAL:</strong> You must then accept the invite! Go directly to <a href="https://www.instagram.com/accounts/manage_access/" target="_blank" rel="noopener noreferrer" className="underline font-bold text-blue-600">https://www.instagram.com/accounts/manage_access/</a> (make sure you are logged into the correct Instagram account on your browser) and look for the "Tester invites" tab there to accept it.</li>
+                      <li>Alternatively, on the Instagram mobile app: Go to Settings and activity {'>'} Website permissions {'>'} Apps and websites {'>'} Tester Invites.</li>
+                      <li><strong>Note on Permissions:</strong> When prompted, the "View profile and access media" permission actually includes the ability to read your reel comments. Just click <strong>Allow</strong> on all requested permissions!</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </section>
