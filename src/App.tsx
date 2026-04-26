@@ -7,6 +7,8 @@ export default function App() {
   const [isActive, setIsActive] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
+  const [accessToken, setAccessToken] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Fetch initial config state
@@ -14,12 +16,30 @@ export default function App() {
       setMessage(res.data.messageTemplate);
       setIsActive(res.data.isActive);
       setIsConnected(res.data.instagramConnected);
+      setAccessToken(res.data.accessToken || '');
       
       // Calculate derived webhook URL for Meta
       const currentUrl = window.location.origin;
       setWebhookUrl(`${currentUrl}/api/webhook`);
     }).catch(err => console.error("Error fetching config:", err));
   }, []);
+
+  const saveConfig = async () => {
+    setIsSaving(true);
+    try {
+      await axios.post('/api/config', {
+        messageTemplate: message,
+        isActive,
+        accessToken
+      });
+      setIsConnected(Boolean(accessToken));
+    } catch (error) {
+      console.error("Error saving config:", error);
+      alert("Failed to save configuration.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
@@ -37,9 +57,9 @@ export default function App() {
                 <ShieldCheck className="w-4 h-4" /> Connected to Instagram
               </span>
             ) : (
-              <button className="flex items-center gap-2 text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-lg transition-all shadow-sm">
-                <Instagram className="w-4 h-4" /> Connect Account
-              </button>
+              <span className="flex items-center gap-2 text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                ⚠️ Connection Required
+              </span>
             )}
           </div>
         </div>
@@ -51,6 +71,27 @@ export default function App() {
           <div className="md:col-span-2 space-y-6">
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
               <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Settings className="w-5 h-5 text-gray-500" />
+                Connection Settings
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Paste your Page Access Token here. You can generate this in the Meta Developer Dashboard under <strong>Step 2. Generate access tokens</strong>.
+              </p>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meta Page Access Token
+                </label>
+                <input 
+                  type="password"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all font-mono text-sm"
+                  placeholder="EAAB..."
+                />
+              </div>
+
+              <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 pt-4 border-t border-gray-100">
                 <MessageCircle className="w-5 h-5 text-gray-500" />
                 Auto-Reply Message
               </h2>
@@ -66,7 +107,7 @@ export default function App() {
                 placeholder="Hey! Thanks for commenting. Here is the link: https://..."
               />
 
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-8 flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div className="relative">
                     <input 
@@ -83,8 +124,12 @@ export default function App() {
                   </span>
                 </label>
 
-                <button className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors">
-                  Save Changes
+                <button 
+                  onClick={saveConfig}
+                  disabled={isSaving}
+                  className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors disabled:opacity-70 flex items-center gap-2"
+                >
+                  {isSaving ? 'Saving...' : 'Save Configuration'}
                 </button>
               </div>
             </section>

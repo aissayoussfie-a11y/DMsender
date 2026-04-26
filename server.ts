@@ -48,32 +48,79 @@ async function startServer() {
     }
   });
 
+  // Storage for bot configuration (In memory for now)
+  let botConfig = {
+    accessToken: "",
+    messageTemplate: "Hey! Thanks for commenting on my reel. Here is the link you asked for: https://example.com",
+    isActive: false,
+  };
+
   // META WEBHOOK EVENT ENDPOINT
   // Meta will send POST requests here when a comment is made
-  app.post("/api/webhook", (req, res) => {
+  app.post("/api/webhook", async (req, res) => {
     const body = req.body;
 
     // Verify this is an event from a page subscription
     if (body.object === "page" || body.object === "instagram") {
       
+      // Return a '200 OK' response to all requests IMMEDIATELY (important for webhooks)
+      res.status(200).send("EVENT_RECEIVED");
+
+      if (!botConfig.isActive) {
+        console.log("Bot is paused. Ignoring webhooks.");
+        return;
+      }
+
       // Iterate over each entry - there may be multiple if batched
-      body.entry.forEach(function (entry: any) {
+      body.entry.forEach(async function (entry: any) {
+        const igUserId = entry.id; // The Instagram Account ID that received the comment
+        
         // Iterate over each messaging event
         if (entry.changes) {
-          entry.changes.forEach((change: any) => {
+          for(const change of entry.changes) {
             if (change.field === "comments") {
               const commentData = change.value;
               console.log("New comment received:", commentData);
               
-              // Here is where we will trigger the direct message logic!
-              // Example commentData: { id: '...', text: '...', from: { id: '...', username: '...' }, media: { id: '...' } }
+              const commentId = commentData.id;
+              
+              if (!botConfig.accessToken) {
+                console.log("Cannot send DM: Access token is missing. Please configure it in the dashboard.");
+                continue;
+              }
+
+              // Send private reply to comment using Graph API
+              try {
+                console.log(`Sending private reply to comment ${commentId}`);
+                const response = await fetch(`https://graph.facebook.com/v19.0/${igUserId}/messages`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${botConfig.accessToken}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    recipient: {
+                      comment_id: commentId
+                    },
+                    message: {
+                      text: botConfig.messageTemplate
+                    }
+                  })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                  console.error("Failed to send DM:", data);
+                } else {
+                  console.log("Successfully sent DM reply!", data);
+                }
+              } catch (error) {
+                console.error("Error making Graph API request:", error);
+              }
             }
-          });
+          }
         }
       });
-
-      // Return a '200 OK' response to all requests
-      res.status(200).send("EVENT_RECEIVED");
     } else {
       // Return a '404 Not Found' if event is not from a page subscription
       res.sendStatus(404);
@@ -82,12 +129,19 @@ async function startServer() {
 
   // Basic API for the frontend dashboard
   app.get("/api/config", (req, res) => {
-    // In a real app, this would fetch from a database (like Firebase)
     res.json({
-      messageTemplate: "Hey! Thanks for commenting on my reel. Here is the link you asked for: https://example.com",
-      isActive: true,
-      instagramConnected: false
+      ...botConfig,
+      instagramConnected: !!botConfig.accessToken
     });
+  });
+
+  app.post("/api/config", (req, res) => {
+    const { accessToken, messageTemplate, isActive } = req.body;
+    if (accessToken !== undefined) botConfig.accessToken = accessToken;
+    if (messageTemplate !== undefined) botConfig.messageTemplate = messageTemplate;
+    if (isActive !== undefined) botConfig.isActive = isActive;
+    
+    res.json({ success: true, config: botConfig });
   });
 
   // Vite middleware for development
