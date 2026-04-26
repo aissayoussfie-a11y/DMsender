@@ -97,7 +97,7 @@ export default function App() {
                 Setup Instructions
               </h2>
               
-              <div className="space-y-4 text-sm text-gray-600">
+                <div className="space-y-4 text-sm text-gray-600">
                 <div>
                   <span className="inline-block w-6 h-6 bg-purple-100 text-purple-700 text-center font-semibold rounded-full leading-6 mr-2">1</span>
                   Create an app in Meta Developer Portal and select <strong>"Manage messaging & content on Instagram"</strong>.
@@ -141,7 +141,12 @@ export default function App() {
 
                 <div>
                   <span className="inline-block w-6 h-6 bg-purple-100 text-purple-700 text-center font-semibold rounded-full leading-6 mr-2">2</span>
-                  Subscribe your webhook to the <code>comments</code> field.
+                  ✅ Awesome! Your webhook is configured. Now, subscribe your webhook to these fields: <code>comments</code>, <code>messages</code>.
+                </div>
+                
+                <div>
+                  <span className="inline-block w-6 h-6 bg-purple-100 text-purple-700 text-center font-semibold rounded-full leading-6 mr-2">3</span>
+                  Complete "Step 4. Set up Instagram business login" in the Meta dashboard.
                 </div>
               </div>
             </section>
