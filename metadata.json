@@ -1,0 +1,6 @@
+{
+  "name": "ReelAutoDM",
+  "description": "An Instagram bot dashboard to automate DM responses for reel comments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
